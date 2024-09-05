@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>AI API Integrator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>AI API Integrator</h1>
+    </header>
+    <main>
+        <div class="api-column">
+            <h2 class="api-heading">OpenAI</h2>
+            <div class="input-container">
+                <input type="text" id="api1-key" placeholder="Enter API Key for OpenAI">
+                <button onclick="submitApiKey('api1')" id="api1-tick" class="tick-button">&#10003;</button>
+            </div>
+            <div class="output-box" id="api1-output"></div>
+        </div>
+        <div class="api-column">
+            <h2 class="api-heading">Claude</h2>
+            <div class="input-container">
+                <input type="text" id="api2-key" placeholder="Enter API Key for Claude">
+                <button onclick="submitApiKey('api2')" id="api2-tick" class="tick-button">&#10003;</button>
+            </div>
+            <div class="output-box" id="api2-output"></div>
+        </div>
+        <div class="api-column">
+            <h2 class="api-heading">Gemini</h2>
+            <div class="input-container">
+                <input type="text" id="api3-key" placeholder="Enter API Key for Gemini">
+                <button onclick="submitApiKey('api3')" id="api3-tick" class="tick-button">&#10003;</button>
+            </div>
+            <div class="output-box" id="api3-output"></div>
+        </div>
+        <div class="api-column">
+            <h2 class="api-heading">DeepSeek</h2>
+            <div class="input-container">
+                <input type="text" id="api4-key" placeholder="Enter API Key for DeepSeek">
+                <button onclick="submitApiKey('api4')" id="api4-tick" class="tick-button">&#10003;</button>
+            </div>
+            <div class="output-box" id="api4-output"></div>
+        </div>
+    </main>
+    <footer>
+        <div class="prompt-section">
+            <div class="input-container">
+                <select id="api-select" class="small-dropdown">
+                    <option value="all">All APIs</option>
+                    <option value="api1">OpenAI</option>
+                    <option value="api2">Claude</option>
+                    <option value="api3">Gemini</option>
+                    <option value="api4">DeepSeek</option>
+                </select>
+                <textarea id="prompt" placeholder="Enter your prompt here" class="big-textarea" onkeydown="handleKeyDown(event)"></textarea>
+                <button onclick="submitPrompt()" class="send-button">Send</button>
+            </div>
+        </div>
+    </footer>
+    <script>
+        async function submitApiKey(api) {
+            const key = document.getElementById(`${api}-key`).value;
+            const response = await fetch(`/submit_api_key/${api}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ key })
+            });
+            if (response.ok) {
+                const tickButton = document.getElementById(`${api}-tick`);
+                tickButton.style.color = 'black';
+                tickButton.style.backgroundColor = 'green';
+            }
+        }
+
+        async function submitPrompt() {
+            const apiSelect = document.getElementById('api-select').value;
+            const prompt = document.getElementById('prompt').value;
+            const response = await fetch('/submit_prompt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ apiSelect, prompt })
+            });
+            const data = await response.json();
+            document.getElementById('api1-output').innerText = data.api1 || '';
+            document.getElementById('api2-output').innerText = data.api2 || '';
+            document.getElementById('api3-output').innerText = data.api3 || '';
+            document.getElementById('api4-output').innerText = data.api4 || '';
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                submitPrompt();
+            }
+        }
+    </script>
+</body>
+</html>
